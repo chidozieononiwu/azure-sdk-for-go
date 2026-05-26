@@ -8,7 +8,6 @@ import (
 	"log"
 
 	"github.com/google/go-github/v62/github"
-	"golang.org/x/oauth2"
 )
 
 // Login to github using the given credentials
@@ -36,12 +35,14 @@ func getGithubClientWithUserInfo(info UserInfo) *github.Client {
 }
 
 func getGithubClientWithAccessToken(ctx context.Context, token string) *github.Client {
-	log.Printf("Loging in with personal access token")
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	return github.NewClient(tc)
+	_ = ctx
+	log.Printf("Logging in with x-access-token")
+	auth := &github.BasicAuthTransport{
+		Username:  "x-access-token",
+		Password:  token,
+		Transport: nil,
+	}
+	return github.NewClient(auth.Client())
 }
 
 // UserInfo ...
